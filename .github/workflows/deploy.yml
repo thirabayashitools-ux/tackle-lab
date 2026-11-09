@@ -1,0 +1,67 @@
+# deploy.yml — main に push されたら、試験とビルドをして GitHub Pages に公開する
+#
+# GitHub Actions：GitHub のサーバーで、決まった作業を自動で動かす仕組み。
+# このファイルは「いつ」「何を」動かすかの手順書。
+#
+# 流れ：
+#   build（試験 → ビルド）が成功したときだけ deploy（公開）に進む。
+#   試験やビルドが失敗したら公開しないので、前の版がそのまま残る（CLAUDE.md 4章）。
+
+name: 試験・ビルド・公開
+
+on:
+  push:
+    branches: [main]
+  # 手で動かしたいとき用（GitHub の Actions 画面にボタンが出る）
+  workflow_dispatch:
+
+# 公開に必要な権限だけを与える
+permissions:
+  contents: read # リポジトリを読む
+  pages: write # GitHub Pages に書き込む
+  id-token: write # 公開のときの本人確認に使う
+
+# 立て続けに push したとき、古いほうの公開を待たずに止める
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリを取り込む
+        uses: actions/checkout@v4
+
+      - name: Node.js を用意する
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # npm ci：package-lock.json のとおりに、決まった版の部品を入れる
+      # （npm install と違い、版が勝手に変わらない）
+      - name: 部品を入れる
+        run: npm ci
+
+      - name: 試験
+        run: npm test
+
+      - name: ビルド
+        run: npm run build
+
+      - name: 公開用のファイルを渡す
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build # build が成功したときだけ動く
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages に公開する
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,38 @@
+/*
+  index.css — 画面全体の見た目（仮）
+  スマホで見る前提なので、文字は大きめ・余白は少なめにしている。
+  本格的な見た目は、エディタを作りながらスマホで触って直す（CLAUDE.md 6章）。
+*/
+
+/* 色の指定を1か所に集めておく（あとで変えやすくするため） */
+:root {
+  --color-sea: #0b3d5c;
+  --color-text: #1b2a33;
+  --color-muted: #6b7c86;
+  --color-bg: #f5f8fa;
+  font-family: system-ui, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 480px; /* スマホの幅くらいに抑える。PCで開いても横に広がりすぎないように */
+  margin: 0 auto;
+  padding: 16px;
+}
+
+h1 {
+  color: var(--color-sea);
+  font-size: 1.6rem;
+  margin: 8px 0;
+}
+
+.build-info {
+  margin-top: 32px;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
