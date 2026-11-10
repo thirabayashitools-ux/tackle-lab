@@ -36,3 +36,38 @@ h1 {
   font-size: 0.8rem;
   color: var(--color-muted);
 }
+
+/* ---- リグの見出し（名前・全長・警告） ---- */
+.rig-header .rig-name {
+  margin: 4px 0 0;
+  font-weight: bold;
+}
+
+.rig-summary {
+  margin: 4px 0 12px;
+}
+
+.rig-warning {
+  color: #b5452b;
+}
+
+/* ---- 仕掛け図 ---- */
+/* 図は縮めずに描くので、画面より広いときはこの枠の中で横に動かして見る */
+.diagram-scroll {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 0;
+}
+
+/* SVG を行の中の文字のように扱うと、下に謎のすき間ができるので、箱として扱う */
+.rig-diagram {
+  display: block;
+  margin: 0 auto;
+}
+
+.diagram-empty,
+.note {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
