@@ -23,6 +23,7 @@
  * - rig.js の toLength・isValidPosition で、使えない位置を 0 にそろえる
  * - これから作る仕掛けエディタ（Issue #3）が結果を画面に出す
  * - これから作る仕掛け図（Issue #4）が、経路と長さを使って図を描く
+ * - rigLayout.js が、グラフと walkFrom・nodeOfPoint を使って図の置き方を決める
  * - rigCalc.test.js が試験する
  */
 import { toLength, isValidPosition, pointExists } from './rig.js'
@@ -177,6 +178,8 @@ export function buildRigGraph(rig) {
  *
  * たどり方：近い順に1つずつ広げていく（幅優先探索）。輪がないので、どの節点への道も1本だけ。
  *
+ * 外でも使う：rigLayout.js（図の置き方）が、タックル側の端からの「1つ手前の節点」を使う。
+ *
  * @param {ReturnType<typeof buildRigGraph>} graph グラフ
  * @param {string} startNode たどり始める節点
  * @returns {{ distance: Map<string, number>, parent: Map<string, string | null>, foundLoop: boolean }}
@@ -184,7 +187,7 @@ export function buildRigGraph(rig) {
  *   - parent：節点 → 1つ手前（startNode 側）の節点。startNode は null
  *   - foundLoop：たどる途中で輪が見つかったか
  */
-function walkFrom(graph, startNode) {
+export function walkFrom(graph, startNode) {
   const distance = new Map([[startNode, 0]])
   const parent = new Map([[startNode, null]])
   // parentEdge：その節点に来るときに通った線の番号（来た道を「輪」とまちがえないため）
@@ -208,6 +211,18 @@ function walkFrom(graph, startNode) {
     }
   }
   return { distance, parent, foundLoop }
+}
+
+/**
+ * { part, point } で指したポイントが、どの節点に属するかを引く。
+ *
+ * @param {ReturnType<typeof buildRigGraph>} graph グラフ
+ * @param {{ part: string, point: string } | null | undefined} ref 指す先
+ * @returns {string | null} 節点の名前。ないポイントなら null
+ */
+export function nodeOfPoint(graph, ref) {
+  if (!ref) return null
+  return graph.nodeOf.get(pointKey(ref.part, ref.point)) ?? null
 }
 
 /**
